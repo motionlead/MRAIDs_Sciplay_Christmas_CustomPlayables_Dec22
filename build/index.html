@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0,  maximum-scale=1.0, user-scalable=no"
+    />
+    <title>AK</title>
+    <!-- The MotionLead SDK -->
+    <script src="tmp/libs/motionlead.js"></script>
+  </head>
+
+  <body>
+    <div
+      id="interceptor-mark"
+      style="
+        display: block;
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        height: 3px;
+        background-color: red;
+        z-index: 3000000;
+      "
+    ></div>
+    <div
+      id="close-interceptor-mark"
+      style="
+        display: block;
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        width: 0;
+        height: 0;
+        z-index: 3000000;
+        border: 2px solid red;
+      "
+    ></div>
+    <script type="text/javascript">
+      var creativeId = '192279';
+      var userId = 'ae3256ab-4031-4388-abf8-37c8938f25f2';
+
+      var adInfo = {};
+      // TRACKING
+
+      ML.displayAd({
+        creativeUrl: 'http://192.168.1.9:3012/creative.min.js',
+        onDisplay: function () {
+          console.log('DISPLAY');
+        },
+        onClose: function () {
+          console.log('CLOSE');
+        },
+        onTrack: function (args) {
+          console.log('TRACK', args);
+        },
+        onOpen: function (url) {
+          console.log('OPEN', url);
+        },
+      });
+    </script>
+
+    <script type="text/javascript">
+      // Change interceptor mark position
+      (function (window) {
+        var im = null;
+        var cim = null;
+        var i = null;
+        var ci = null;
+
+        function checkAndMoveMark() {
+          // Select all the elements we need
+          if (im === null)
+            im = window.document.querySelector('#interceptor-mark');
+
+          if (cim === null)
+            cim = window.document.querySelector('#close-interceptor-mark');
+
+          if (i === null)
+            i = window.document.querySelector('.ml-click-interceptor');
+
+          if (ci === null)
+            ci = window.document.querySelector('.ml-click-close-interceptor');
+
+          // When we have everything (it is possible we have not everything
+          // in the case the dom is not fully loaded when this function is
+          // executed.
+          if (im !== null && cim !== null && i !== null && ci !== null) {
+            // Do not show marks if they have a useless value
+            if (i.style.height === '0px') {
+              im.style.opacity = 0;
+            } else {
+              im.style.opacity = 1;
+              im.style.bottom = i.style.height;
+            }
+
+            if (ci.style.width === '0px') {
+              cim.style.opacity = 0;
+            } else {
+              cim.style.opacity = 1;
+              cim.style.left = parseFloat(ci.style.left) - 2 + 'px';
+              cim.style.bottom = parseFloat(ci.style.bottom) - 2 + 'px';
+              cim.style.width = ci.style.width;
+              cim.style.height = ci.style.height;
+            }
+          }
+
+          window.requestAnimationFrame(checkAndMoveMark);
+        }
+
+        window.requestAnimationFrame(checkAndMoveMark);
+
+        // Hide/show marks
+        window.toggleMarks = function () {
+          if (im !== null && cim !== null) {
+            if (im.style.display === 'block') {
+              im.style.display = 'none';
+              cim.style.display = 'none';
+            } else {
+              im.style.display = 'block';
+              cim.style.display = 'block';
+            }
+          }
+        };
+      })(ML.window);
+    </script>
+  </body>
+</html>
